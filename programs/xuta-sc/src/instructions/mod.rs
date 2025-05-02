@@ -10,7 +10,7 @@ pub mod pause_campaign;
 pub mod set_authority;
 pub mod set_fee;
 pub mod set_institutions_authority;
-pub mod submit_contract;
+pub mod init_contract;
 
 pub use start_campaign::*;
 pub use buy_token::*;
@@ -24,4 +24,4 @@ pub use pause_campaign::*;
 pub use set_authority::*;
 pub use set_fee::*;
 pub use set_institutions_authority::*;
-pub use submit_contract::*;
+pub use init_contract::*;

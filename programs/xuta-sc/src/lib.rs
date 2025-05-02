@@ -78,7 +78,7 @@ pub mod xuta_sc {
         Ok(())
     }
     
-    pub fn submit_contract(ctx: Context<SubmitContract>) -> Result<()> {
+    pub fn init_contract(ctx: Context<InitContract>) -> Result<()> {
         msg!("Greetings from: {:?}", ctx.program_id);
         Ok(())
     }
