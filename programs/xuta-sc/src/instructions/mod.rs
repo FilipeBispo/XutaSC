@@ -1,4 +1,27 @@
 pub mod start_campaign;
-
+pub mod buy_token;
+pub mod claim_earnings;
+pub mod disable_institution;
+pub mod finish_campaign;
+pub mod init_earnings;
+pub mod init_institution;
+pub mod init;
+pub mod pause_campaign;
+pub mod set_authority;
+pub mod set_fee;
+pub mod set_institutions_authority;
+pub mod submit_contract;
 
 pub use start_campaign::*;
+pub use buy_token::*;
+pub use claim_earnings::*;
+pub use disable_institution::*;
+pub use finish_campaign::*;
+pub use init_earnings::*;
+pub use init_institution::*;
+pub use init::*;
+pub use pause_campaign::*;
+pub use set_authority::*;
+pub use set_fee::*;
+pub use set_institutions_authority::*;
+pub use submit_contract::*;
