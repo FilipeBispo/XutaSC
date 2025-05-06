@@ -14,9 +14,8 @@ declare_id!("9K9BEAMrDqauP8bDEHb19wuFZv5kCn8XjgeixWE7sf6K");
 pub mod xuta_sc {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    pub fn initialize(ctx: Context<Init>) -> Result<()> {
+        ctx.accounts.init(ctx.bumps.config)
     }
     pub fn start_campaign(ctx: Context<StartCampaign>) -> Result<()> {
         msg!("Greetings from: {:?}", ctx.program_id);
@@ -85,6 +84,3 @@ pub mod xuta_sc {
     
 
 }
-
-#[derive(Accounts)]
-pub struct Initialize {}
