@@ -78,7 +78,7 @@ pub mod xuta_sc {
         Ok(())
     }
     
-    pub fn init_contract(ctx: Context<InitContract>) -> Result<()> {
+    pub fn create_campaign(ctx: Context<CreateCampaign>) -> Result<()> {
         msg!("Greetings from: {:?}", ctx.program_id);
         Ok(())
     }
