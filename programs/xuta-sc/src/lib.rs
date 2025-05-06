@@ -77,9 +77,17 @@ pub mod xuta_sc {
         Ok(())
     }
     
-    pub fn create_campaign(ctx: Context<CreateCampaign>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    pub fn create_campaign(
+        ctx: Context<CreateCampaign>,
+        name: String,
+        contract: String,
+        image: String,
+        ratio: u16,
+        target_amount: u64,
+        initial_date: i64,
+        due_date: i64
+    ) -> Result<()> {
+        ctx.accounts.create_campaign(name, contract, image, ratio, target_amount, initial_date, due_date, ctx.bumps.campaign)
     }
     
 
