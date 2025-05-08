@@ -5,18 +5,20 @@ use crate::state::enums::CampaignStatus;
 #[account]
 pub struct Campaign {
     pub authority: Pubkey,
-    pub vault: Pubkey,
     #[max_len(64)]
     pub name: String,
-    #[max_len(100)]
+    #[max_len(300)]
     pub contract: String, // might be an NFT if we have time
+    #[max_len(300)]
+    pub image: String, // might be an NFT if we have time
     pub ratio: u16,
-    pub mint: Pubkey,
+    pub mint_player: Pubkey,
+    pub mint_quote: Pubkey,
     pub target_amount: u64,
     pub current_tokens: u64,
     pub current_fees: u64,
     pub initial_date:i64,
     pub due_date: i64,
     pub status: CampaignStatus,
-    pub bump: u8, // For PDA bump seed
+    pub campaign_bump: u8,
 }
