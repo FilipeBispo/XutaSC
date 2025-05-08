@@ -25,6 +25,7 @@ impl<'info> CreateCampaign<'info>
                 contract,
                 image,
                 ratio,
+                vault: self.vault.key(),
                 mint_player: self.mint_player.key(),
                 mint_quote: self.mint_quote.key(),
                 target_amount,
