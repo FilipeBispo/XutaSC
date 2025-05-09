@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 
 pub mod instructions;
 pub mod state;
+pub mod error;
 
 
 use crate::instructions::*;
@@ -46,10 +47,9 @@ pub mod xuta_sc {
         msg!("Greetings from: {:?}", ctx.program_id);
         Ok(())
     }
-    
-    pub fn init_institution(ctx: Context<InitInstitution>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+
+    pub fn init_institution(ctx: Context<InitInstitution>, name: String, contract: String) -> Result<()> {
+        ctx.accounts.init_institution(name, contract)
     }
     
     pub fn init(ctx: Context<Init>) -> Result<()> {
