@@ -11,6 +11,7 @@ pub mod set_authority;
 pub mod set_fee;
 pub mod set_institutions_authority;
 pub mod create_campaign;
+pub mod refund_receipt;
 
 pub use start_campaign::*;
 pub use buy_token::*;
@@ -25,3 +26,4 @@ pub use set_authority::*;
 pub use set_fee::*;
 pub use set_institutions_authority::*;
 pub use create_campaign::*;
+pub use refund_receipt::*;

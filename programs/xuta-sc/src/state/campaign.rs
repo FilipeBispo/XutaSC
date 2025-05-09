@@ -12,6 +12,7 @@ pub struct Campaign {
     #[max_len(300)]
     pub image: String, // might be an NFT if we have time
     pub ratio: u16,
+    pub vault: Pubkey,
     pub mint_player: Pubkey,
     pub mint_quote: Pubkey,
     pub target_amount: u64,
