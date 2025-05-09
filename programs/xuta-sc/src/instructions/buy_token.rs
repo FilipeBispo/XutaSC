@@ -1,9 +1,9 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::{
-    burn, mint_to, transfer_checked, Mint, TokenAccount, TokenInterface,
+use anchor_spl::token::{
+    transfer_checked, Mint, TokenAccount, Token, TransferChecked,
 };
 
-use crate::state::{campaign, receipt, Campaign, CampaignStatus, Config, ErrorCode, Receipt};
+use crate::state::{Campaign, CampaignStatus, Config, ErrorCode, Receipt};
 
 impl<'info> BuyToken<'info> {
     pub fn buy_token(ctx: Context<BuyToken>, amount: u64, receipt_bump: u8) -> Result<()> {
@@ -57,7 +57,7 @@ impl<'info> BuyToken<'info> {
             .ok_or(ErrorCode::MathError)?;
 
         // Transfer quote from user to vault (checked)
-        let cpi_accounts = anchor_spl::token_interface::TransferChecked {
+        let cpi_accounts = TransferChecked {
             from: ctx.accounts.user_quote_ata.to_account_info(),
             to: vault.to_account_info(),
             authority: user.to_account_info(),
@@ -82,9 +82,9 @@ impl<'info> BuyToken<'info> {
 
         // Initialize receipt
         let receipt = &mut ctx.accounts.receipt;
-        receipt.authority = user.key();
-        receipt.token_amount = token_amount;
-        receipt.fee_amount = fee_amount;
+        receipt.authority =  user.key();
+        receipt.token_amount = receipt.token_amount + token_amount;
+        receipt.fee_amount = receipt.fee_amount + fee_amount;
         receipt.bump = receipt_bump;
 
         // implementation to be made
@@ -97,10 +97,7 @@ pub struct BuyToken<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
-    #[account(
-        mint::token_program = token_program
-    )]
-    pub mint_quote: InterfaceAccount<'info, Mint>,
+    pub mint_quote: Account<'info, Mint>,
 
     #[account(
         mut,
@@ -121,7 +118,7 @@ pub struct BuyToken<'info> {
         associated_token::mint = mint_quote,
         associated_token::authority = campaign,
     )]
-    pub vault_quote: InterfaceAccount<'info, TokenAccount>,
+    pub vault_quote: Account<'info, TokenAccount>,
 
     #[account(
         init,
@@ -133,8 +130,8 @@ pub struct BuyToken<'info> {
     pub receipt: Account<'info, Receipt>,
 
     #[account(mut)]
-    pub user_quote_ata: InterfaceAccount<'info, TokenAccount>,
+    pub user_quote_ata: Account<'info, TokenAccount>,
 
-    pub token_program: Interface<'info, TokenInterface>,
+    pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }

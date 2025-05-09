@@ -4,6 +4,7 @@ use anchor_lang::prelude::*;
 #[account]
 pub struct Receipt {
     pub authority: Pubkey,
+    pub campaign: Pubkey,
     pub token_amount: u64,
     pub fee_amount: u64,
     pub bump: u8, // For PDA bump seed

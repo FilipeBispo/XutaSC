@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_interface::{Mint, TokenAccount, TokenInterface}
+    token::{Mint, TokenAccount, Token}
 };
             
 
@@ -48,13 +48,9 @@ pub struct CreateCampaign<'info>{
     #[account(mut)]
     pub authority: Signer<'info>,
 
-    pub mint_player: InterfaceAccount<'info, Mint>,
+    pub mint_player: Account<'info, Mint>,
 
-    #[account(
-        mint::token_program = token_program
-    )]
-    pub mint_quote: InterfaceAccount<'info, Mint>,
-
+    pub mint_quote: Account<'info, Mint>,
     
     #[account(
         mut,
@@ -62,7 +58,7 @@ pub struct CreateCampaign<'info>{
         associated_token::authority = authority,
         associated_token::token_program = token_program
     )]
-    pub owner_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub owner_token_account: Account<'info, TokenAccount>,
 
     #[account(
         init,
@@ -89,9 +85,9 @@ pub struct CreateCampaign<'info>{
         associated_token::authority = campaign,
         associated_token::token_program = token_program
     )]
-    pub vault: InterfaceAccount<'info, TokenAccount>,
+    pub vault: Account<'info, TokenAccount>,
 
-    pub token_program: Interface<'info, TokenInterface>,
+    pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }

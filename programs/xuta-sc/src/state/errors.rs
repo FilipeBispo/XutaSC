@@ -16,4 +16,10 @@ pub enum ErrorCode {
     FeeError,
     #[msg("Error performing math operation")]
     MathError,
+    #[msg("Receipt has no value")]
+    NoReceiptAmount,
+    #[msg("Campaign is not open for refund")]
+    CampaignNotOpenForRefund,
+    #[msg("Vault has insufcient funds")]
+    InsuficientFunds,
 }
