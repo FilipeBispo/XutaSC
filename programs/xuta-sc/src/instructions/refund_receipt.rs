@@ -4,7 +4,7 @@ use anchor_spl::token::{
     transfer_checked, Mint, TokenAccount, Token, TransferChecked,
 };
 
-use crate::state::{Campaign, CampaignStatus, Config, ErrorCode, Receipt};
+use crate::{state::{Campaign, CampaignStatus, Receipt}, error::CustomError};
 
 pub fn refund_receipt(ctx: Context<RefundReceipt>, amount: u64) -> Result<()> {
     let campaign = &ctx.accounts.campaign;
@@ -13,26 +13,26 @@ pub fn refund_receipt(ctx: Context<RefundReceipt>, amount: u64) -> Result<()> {
 
 
         // Check vault matches stored vault
-    require!(vault.key() == campaign.vault, ErrorCode::InvalidVault);
+    require!(vault.key() == campaign.vault, CustomError::InvalidVault);
 
             // Check campaign status is Active
 
     require!(
         campaign.status != CampaignStatus::Successful 
         || campaign.status != CampaignStatus::Paused,
-        ErrorCode::CampaignNotOpenForRefund
+        CustomError::CampaignNotOpenForRefund
     );
 
     // Get the total number of receipt amount the user holds in their account
     let redeem_amount = receipt.fee_amount + receipt. token_amount;
-    require!(redeem_amount > 0, ErrorCode::NoReceiptAmount);
+    require!(redeem_amount > 0, CustomError::NoReceiptAmount);
 
     // Calculate the amount of tokens to remove: receipt_amount\ratio
     let tokens_to_remove = redeem_amount
         .checked_div(campaign.ratio as u64)
-        .ok_or(ErrorCode::MathError)?;
+        .ok_or(CustomError::MathError)?;
     // Ensure the vault has enough USDC to fulfill the redemption
-    require!(vault.amount >= redeem_amount, ErrorCode::InsuficientFunds);
+    require!(vault.amount >= redeem_amount, CustomError::InsuficientFunds);
 
     // Transfer the corresponding USDC from the vault account back to the user's USDC account (CPI to SPL Token program)
     let authority_seeds = &[

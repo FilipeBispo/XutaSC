@@ -3,7 +3,7 @@ use anchor_spl::token::{
     transfer_checked, Mint, TokenAccount, Token, TransferChecked,
 };
 
-use crate::state::{Campaign, CampaignStatus, Config, ErrorCode, Receipt};
+use crate::{state::{Campaign, CampaignStatus, Config, Receipt}, error::CustomError};
 
 impl<'info> BuyToken<'info> {
     pub fn buy_token(ctx: Context<BuyToken>, amount: u64, receipt_bump: u8) -> Result<()> {
@@ -13,12 +13,12 @@ impl<'info> BuyToken<'info> {
         let user = &ctx.accounts.user;
 
         // Check vault matches stored vault
-        require!(vault.key() == campaign.vault, ErrorCode::InvalidVault);
+        require!(vault.key() == campaign.vault, CustomError::InvalidVault);
 
         // Check campaign status is Active
         require!(
             campaign.status == CampaignStatus::Active,
-            ErrorCode::CampaignNotActive
+            CustomError::CampaignNotActive
         );
 
         // Check current time is within [initial_date, due_date]
@@ -26,11 +26,11 @@ impl<'info> BuyToken<'info> {
         let now = clock.unix_timestamp;
         require!(
             now >= campaign.initial_date && now <= campaign.due_date,
-            ErrorCode::CampaignNotStarted
+            CustomError::CampaignNotStarted
         );
         require!(
             now >= campaign.initial_date && now <= campaign.due_date,
-            ErrorCode::CampaignEnded
+            CustomError::CampaignEnded
         );
 
         let mut totalAmount  = amount; 
@@ -39,22 +39,23 @@ impl<'info> BuyToken<'info> {
         // Calculate tokens to mint based on ratio
         let mut token_number = totalAmount
             .checked_div(campaign.ratio as u64)
-            .ok_or(ErrorCode::InvalidRatioOrAmount)?;
+
+            .ok_or(CustomError::InvalidRatioOrAmount)?;
 
         if ( token_number + campaign.current_tokens > campaign.target_amount) {
             token_number = campaign.target_amount - campaign.current_tokens;
             totalAmount = token_number.checked_mul(campaign.ratio as u64)
-            .ok_or(ErrorCode::InvalidRatioOrAmount)?;
+            .ok_or(CustomError::InvalidRatioOrAmount)?;
             refund = true;
         }
 
         let fee_amount = token_number
             .checked_mul(config.fee_pre as u64)
-            .ok_or(ErrorCode::FeeError)?;
+            .ok_or(CustomError::FeeError)?;
 
         let token_amount = totalAmount
             .checked_sub(fee_amount)
-            .ok_or(ErrorCode::MathError)?;
+            .ok_or(CustomError::MathError)?;
 
         // Transfer quote from user to vault (checked)
         let cpi_accounts = TransferChecked {
@@ -74,11 +75,11 @@ impl<'info> BuyToken<'info> {
         campaign_data.current_tokens = campaign_data
             .current_tokens
             .checked_add(token_amount)
-            .ok_or(ErrorCode::MathError)?;
+            .ok_or(CustomError::MathError)?;
         campaign_data.current_fees = campaign_data
             .current_fees
             .checked_add(fee_amount)
-            .ok_or(ErrorCode::MathError)?;
+            .ok_or(CustomError::MathError)?;
 
         // Initialize receipt
         let receipt = &mut ctx.accounts.receipt;
