@@ -33,17 +33,17 @@ impl<'info> BuyToken<'info> {
             CustomError::CampaignEnded
         );
 
-        let mut totalAmount  = amount; 
+        let mut total_amount  = amount; 
 
         let mut refund= false;
         // Calculate tokens to mint based on ratio
-        let mut token_number = totalAmount
+        let mut token_number = total_amount
             .checked_div(campaign.ratio as u64)
             .ok_or(CustomError::InvalidRatioOrAmount)?;
 
         if ( token_number + campaign.current_tokens > campaign.target_amount) {
             token_number = campaign.target_amount - campaign.current_tokens;
-            totalAmount = token_number.checked_mul(campaign.ratio as u64)
+            total_amount = token_number.checked_mul(campaign.ratio as u64)
             .ok_or(CustomError::InvalidRatioOrAmount)?;
             refund = true;
         }
@@ -52,7 +52,7 @@ impl<'info> BuyToken<'info> {
             .checked_mul(config.fee_pre as u64)
             .ok_or(CustomError::FeeError)?;
 
-        let token_amount = totalAmount
+        let token_amount = total_amount
             .checked_sub(fee_amount)
             .ok_or(CustomError::MathError)?;
 
@@ -67,7 +67,7 @@ impl<'info> BuyToken<'info> {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-        transfer_checked(cpi_ctx, totalAmount, 6)?; // maybe decimals should be in the campaign
+        transfer_checked(cpi_ctx, total_amount, 6)?; // maybe decimals should be in the campaign
                                                
         //  Update campaign stats
         let mut campaign_data = &mut ctx.accounts.campaign;
