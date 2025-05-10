@@ -65,9 +65,8 @@ pub mod xuta_sc {
         Ok(())
     }
     
-    pub fn set_fee(ctx: Context<SetFee>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    pub fn set_fee(ctx: Context<SetFee>, fee_pre: u16, fee_pos: u16) -> Result<()> {
+        instructions::set_fee::set_fee(ctx, fee_pre, fee_pos)
     }
     
     pub fn set_institutions_authority(ctx: Context<SetInstitutionsAuthority>) -> Result<()> {
