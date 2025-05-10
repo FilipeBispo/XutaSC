@@ -26,4 +26,6 @@ pub enum CustomError {
     InsuficientFunds,
     #[msg("Invalid Token amount to mint")]
     InvalidTokenAmount,
+    #[msg("Institution has active campaigns")]
+    InstitutionHasActiveCampaigns,
 }

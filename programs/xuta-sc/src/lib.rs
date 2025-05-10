@@ -33,8 +33,7 @@ pub mod xuta_sc {
     }
     
     pub fn disable_institution(ctx: Context<DisableInstitution>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+        instructions::disable_institution::disable_institution(ctx)
     }
     
     pub fn finish_campaign(ctx: Context<FinishCampaign>) -> Result<()> {

@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::accessor::authority;
 
 use crate::{state::{Config, Institution}, error::CustomError};
 
@@ -34,6 +33,8 @@ impl<'info> InitInstitution<'info> {
         self.institution.name = name;
         self.institution.authority = self.new_institution_authority.key();
         self.institution.contract = contract;
+        self.institution.disabled = false;
+        self.institution.has_active_campaigns = false;
         Ok(())
     }
 }
