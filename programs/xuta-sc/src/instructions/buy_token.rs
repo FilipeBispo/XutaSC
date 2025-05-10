@@ -41,7 +41,7 @@ impl<'info> BuyToken<'info> {
             .checked_div(campaign.ratio as u64)
             .ok_or(CustomError::InvalidRatioOrAmount)?;
 
-        if ( token_number + campaign.current_tokens > campaign.target_amount) {
+        if (token_number + campaign.current_tokens > campaign.target_amount) {
             token_number = campaign.target_amount - campaign.current_tokens;
             total_amount = token_number.checked_mul(campaign.ratio as u64)
             .ok_or(CustomError::InvalidRatioOrAmount)?;

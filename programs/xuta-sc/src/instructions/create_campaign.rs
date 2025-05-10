@@ -5,7 +5,7 @@ use anchor_spl::{
 };
             
 
-use crate::state::{Campaign, CampaignStatus, Config};
+use crate::{state::{Campaign, CampaignStatus, Config, Institution, }, error::CustomError};
 
 impl<'info> CreateCampaign<'info>
 {
@@ -18,6 +18,10 @@ impl<'info> CreateCampaign<'info>
         initial_date: i64,
         due_date: i64, 
         campaign_bump: u8) -> Result<()> {
+        
+        require!(self.institution.disabled == false,
+                    CustomError::InstitutionDisabled);
+        
         self.campaign.set_inner(
             Campaign{
                 authority: self.authority.key(),
@@ -37,8 +41,7 @@ impl<'info> CreateCampaign<'info>
                 campaign_bump,
             }
         );
-
-
+        
         Ok(())
     }
 }
@@ -71,6 +74,10 @@ pub struct CreateCampaign<'info>{
     )]    
     pub campaign: Account<'info, Campaign>,
 
+    #[account(
+        has_one = authority,
+    )]
+    pub institution: Account<'info, Institution>,
 
     #[account(
         seeds=[b"config".as_ref()],
