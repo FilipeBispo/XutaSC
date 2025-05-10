@@ -32,4 +32,6 @@ pub enum CustomError {
     InstitutionDisabled,
     #[msg("Invalid fee value")]
     InvalidFeeValue,
+    #[msg("Earnings not active")]
+    EarningsNotActive,
 }

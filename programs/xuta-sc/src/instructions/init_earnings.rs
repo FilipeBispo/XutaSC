@@ -74,7 +74,7 @@ pub struct InitEarnings<'info> {
         init,
         payer = authority,
         space = Earnings::DISCRIMINATOR.len() + Earnings::INIT_SPACE,
-        seeds = [b"Earnings", mint_player.key().as_ref()],
+        seeds = [b"Earnings", campaign.key().as_ref()],
         bump
     )]    
     pub earnings: Account<'info, Earnings>,
