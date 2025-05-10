@@ -61,8 +61,7 @@ pub mod xuta_sc {
     }
     
     pub fn set_authority(ctx: Context<SetAuthority>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+        instructions::set_authority::set_authority(ctx)
     }
     
     pub fn set_fee(ctx: Context<SetFee>, fee_pre: u16, fee_pos: u16) -> Result<()> {
@@ -70,8 +69,7 @@ pub mod xuta_sc {
     }
     
     pub fn set_institutions_authority(ctx: Context<SetInstitutionsAuthority>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+        instructions::set_institutions_authority::set_institutions_authority(ctx)
     }
 
     pub fn refund_receipt(ctx: Context<RefundReceipt>) -> Result<()> {
