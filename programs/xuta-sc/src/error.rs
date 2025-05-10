@@ -30,4 +30,6 @@ pub enum CustomError {
     InstitutionHasActiveCampaigns,
     #[msg("Institution is disabled")]
     InstitutionDisabled,
+    #[msg("Invalid fee value")]
+    InvalidFeeValue,
 }
