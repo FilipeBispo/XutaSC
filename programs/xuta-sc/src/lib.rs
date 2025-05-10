@@ -27,9 +27,8 @@ pub mod xuta_sc {
         BuyToken::buy_token(ctx, amount, receipt_bump)
     }
     
-    pub fn claim_earnings(ctx: Context<ClaimEarnings>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    pub fn claim_earnings(ctx: Context<ClaimEarnings>, amount: u64) -> Result<()> {
+        ClaimEarnings::claim_earnings(ctx, amount)
     }
     
     pub fn disable_institution(ctx: Context<DisableInstitution>) -> Result<()> {
