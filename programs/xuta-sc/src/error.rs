@@ -28,4 +28,6 @@ pub enum CustomError {
     InvalidTokenAmount,
     #[msg("Institution has active campaigns")]
     InstitutionHasActiveCampaigns,
+    #[msg("Invalid fee value")]
+    InvalidFeeValue,
 }
