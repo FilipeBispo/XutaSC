@@ -24,4 +24,6 @@ pub enum CustomError {
     CampaignNotOpenForRefund,
     #[msg("Vault has insufcient funds")]
     InsuficientFunds,
+    #[msg("Institution has active campaigns")]
+    InstitutionHasActiveCampaigns,
 }
