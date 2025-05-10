@@ -23,9 +23,8 @@ pub mod xuta_sc {
         Ok(())
     }
     
-    pub fn buy_token(ctx: Context<BuyToken>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    pub fn buy_token(ctx: Context<BuyToken>, amount: u64, receipt_bump: u8) -> Result<()> {
+        BuyToken::buy_token(ctx, amount, receipt_bump)
     }
     
     pub fn claim_earnings(ctx: Context<ClaimEarnings>) -> Result<()> {
@@ -74,6 +73,14 @@ pub mod xuta_sc {
     pub fn set_institutions_authority(ctx: Context<SetInstitutionsAuthority>) -> Result<()> {
         msg!("Greetings from: {:?}", ctx.program_id);
         Ok(())
+    }
+
+    pub fn refund_receipt(ctx: Context<RefundReceipt>) -> Result<()> {
+        RefundReceipt::refund_receipt(ctx)
+    }
+
+    pub fn redeem_token(ctx: Context<RedeemToken>) -> Result<()> {
+        RedeemToken::redeem_token(ctx)
     }
     
     pub fn create_campaign(

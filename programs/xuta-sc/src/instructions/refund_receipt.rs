@@ -1,59 +1,73 @@
 use anchor_lang::prelude::*;
 
-use anchor_spl::token::{
-    transfer_checked, Mint, TokenAccount, Token, TransferChecked,
+use anchor_spl::token::{transfer_checked, Mint, Token, TokenAccount, TransferChecked};
+
+use crate::{
+    error::CustomError,
+    state::{Campaign, CampaignStatus, Receipt},
 };
 
-use crate::{state::{Campaign, CampaignStatus, Receipt}, error::CustomError};
-
-pub fn refund_receipt(ctx: Context<RefundReceipt>, amount: u64) -> Result<()> {
-    let campaign = &ctx.accounts.campaign;
-    let vault = &ctx.accounts.vault;
-    let receipt = &ctx.accounts.receipt;
-
+impl<'info> RefundReceipt<'info> {
+    pub fn refund_receipt(ctx: Context<RefundReceipt>) -> Result<()> {
+        let campaign = &ctx.accounts.campaign;
+        let vault = &ctx.accounts.vault;
+        let receipt = &ctx.accounts.receipt;
 
         // Check vault matches stored vault
-    require!(vault.key() == campaign.vault, CustomError::InvalidVault);
+        require!(vault.key() == campaign.vault, CustomError::InvalidVault);
 
-            // Check campaign status is Active
+        // Check campaign status is open to refund
 
-    require!(
-        campaign.status != CampaignStatus::Successful 
-        || campaign.status != CampaignStatus::Paused,
-        CustomError::CampaignNotOpenForRefund
-    );
+        require!(
+            campaign.status != CampaignStatus::Successful
+                || campaign.status != CampaignStatus::Paused,
+            CustomError::CampaignNotOpenForRefund
+        );
 
-    // Get the total number of receipt amount the user holds in their account
-    let redeem_amount = receipt.fee_amount + receipt. token_amount;
-    require!(redeem_amount > 0, CustomError::NoReceiptAmount);
+        // Get the total number of receipt amount the user holds in their account
+        let fee_amount = receipt.fee_amount;
+        let redeem_amount = fee_amount + receipt.token_amount;
+        require!(redeem_amount > 0, CustomError::NoReceiptAmount);
 
-    // Calculate the amount of tokens to remove: receipt_amount\ratio
-    let tokens_to_remove = redeem_amount
-        .checked_div(campaign.ratio as u64)
-        .ok_or(CustomError::MathError)?;
-    // Ensure the vault has enough USDC to fulfill the redemption
-    require!(vault.amount >= redeem_amount, CustomError::InsuficientFunds);
+        // Calculate the amount of tokens to remove: receipt_amount\ratio
+        let tokens_to_remove = redeem_amount
+            .checked_div(campaign.ratio as u64)
+            .ok_or(CustomError::MathError)?;
+        // Ensure the vault has enough quote to fulfill the redemption
+        require!(vault.amount >= redeem_amount, CustomError::InsuficientFunds);
 
-    // Transfer the corresponding USDC from the vault account back to the user's USDC account (CPI to SPL Token program)
-    let authority_seeds = &[
-        b"campaign",
-        campaign.mint_player.as_ref(),
-        &[campaign.campaign_bump]
-    ];
-    let signer_seeds = &[&authority_seeds[..]];
-    let cpi_transfer_ctx = CpiContext::new_with_signer(
-        ctx.accounts.token_program.to_account_info(),
-        TransferChecked {
-            from: vault.to_account_info(),
-            to: ctx.accounts.user_token_account_quote.to_account_info(),
-            authority: campaign.to_account_info(),
-            mint: ctx.accounts.mint_quote.to_account_info(),
-        },
-        signer_seeds,
-    );
-    transfer_checked(cpi_transfer_ctx, redeem_amount, 6)?;
+        // Transfer the corresponding quote from the vault account back to the user's USDC account (CPI to SPL Token program)
+        let authority_seeds = &[
+            b"campaign",
+            campaign.mint_player.as_ref(),
+            &[campaign.campaign_bump],
+        ];
+        let signer_seeds = &[&authority_seeds[..]];
+        let cpi_transfer_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            TransferChecked {
+                from: vault.to_account_info(),
+                to: ctx.accounts.user_token_account_quote.to_account_info(),
+                authority: campaign.to_account_info(),
+                mint: ctx.accounts.mint_quote.to_account_info(),
+            },
+            signer_seeds,
+        );
+        transfer_checked(cpi_transfer_ctx, redeem_amount, 6)?;
 
-    Ok(())
+        //  Update campaign stats
+        let mut campaign_data = &mut ctx.accounts.campaign;
+        campaign_data.current_tokens = campaign_data
+            .current_tokens
+            .checked_sub(tokens_to_remove)
+            .ok_or(CustomError::MathError)?;
+        campaign_data.current_fees = campaign_data
+            .current_fees
+            .checked_sub(fee_amount)
+            .ok_or(CustomError::MathError)?;
+
+        Ok(())
+    }
 }
 
 /// Accounts for the `redeem_receipt` instruction.
@@ -88,7 +102,6 @@ pub struct RefundReceipt<'info> {
         associated_token::token_program = token_program,
     )]
     pub vault: Box<Account<'info, TokenAccount>>,
-
 
     /// The mint of the custom receipt token.
     #[account(
