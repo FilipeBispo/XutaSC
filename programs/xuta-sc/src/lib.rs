@@ -36,8 +36,7 @@ pub mod xuta_sc {
     }
     
     pub fn finish_campaign(ctx: Context<FinishCampaign>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+        instructions::finish_campaign::finish_campaign(ctx)
     }
     
     pub fn init_earnings(ctx: Context<InitEarnings>) -> Result<()> {
@@ -55,8 +54,7 @@ pub mod xuta_sc {
     }
     
     pub fn pause_campaign(ctx: Context<PauseCampaign>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+        instructions::pause_campaign::pause_campaign(ctx)
     }
     
     pub fn set_authority(ctx: Context<SetAuthority>) -> Result<()> {
