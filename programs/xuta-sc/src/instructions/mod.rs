@@ -1,4 +1,4 @@
-pub mod start_campaign;
+
 pub mod buy_token;
 pub mod claim_earnings;
 pub mod disable_institution;
@@ -14,7 +14,6 @@ pub mod create_campaign;
 pub mod refund_receipt;
 pub mod redeem_token;
 
-pub use start_campaign::*;
 pub use buy_token::*;
 pub use claim_earnings::*;
 pub use disable_institution::*;

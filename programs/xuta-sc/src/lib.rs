@@ -14,14 +14,6 @@ declare_id!("9K9BEAMrDqauP8bDEHb19wuFZv5kCn8XjgeixWE7sf6K");
 #[program]
 pub mod xuta_sc {
     use super::*;
-
-    pub fn initialize(ctx: Context<Init>) -> Result<()> {
-        ctx.accounts.init(ctx.bumps.config)
-    }
-    pub fn start_campaign(ctx: Context<StartCampaign>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
-    }
     
     pub fn buy_token(ctx: Context<BuyToken>, amount: u64, receipt_bump: u8) -> Result<()> {
         BuyToken::buy_token(ctx, amount, receipt_bump)
@@ -49,8 +41,7 @@ pub mod xuta_sc {
     }
     
     pub fn init(ctx: Context<Init>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+        ctx.accounts.init(ctx.bumps.config)
     }
     
     pub fn pause_campaign(ctx: Context<PauseCampaign>) -> Result<()> {

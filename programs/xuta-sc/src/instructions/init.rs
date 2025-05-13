@@ -10,7 +10,7 @@ impl<'info> Init<'info>{
         config.fee_pre = 0;
         config.fee_pos = 0;
         config.bump = config_bump;
-        
+          
         Ok(())
     }
 

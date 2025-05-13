@@ -51,8 +51,18 @@ pub struct CreateCampaign<'info>{
     #[account(mut)]
     pub authority: Signer<'info>,
 
+    #[account(
+        init,
+        payer = authority,
+        mint::token_program = token_program,
+        mint::decimals = 6,
+        mint::authority = campaign.key(),
+    )]
     pub mint_player: Account<'info, Mint>,
 
+    #[account(
+        mint::token_program = token_program,
+    )]
     pub mint_quote: Account<'info, Mint>,
     
     #[account(

@@ -17,7 +17,7 @@ pub struct InitInstitution<'info> {
         bump,
     )]
     pub institution: Account<'info, Institution>,
-    #[account(mut)]
+    #[account()]
     pub new_institution_authority: SystemAccount<'info>,
     #[account(
         seeds = [b"config".as_ref()], 

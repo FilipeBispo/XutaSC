@@ -9,7 +9,6 @@ use crate::{
 
 impl<'info> ClaimEarnings<'info> {
     pub fn claim_earnings(ctx: Context<ClaimEarnings>, token_amount: u64) -> Result<()> {
-        let campaign = &ctx.accounts.campaign;
         let vault = &ctx.accounts.vault_quote;
         let earnings = &ctx.accounts.earnings;
         let config = &ctx.accounts.config;
