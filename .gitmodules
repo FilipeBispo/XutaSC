@@ -1,3 +1,6 @@
 [submodule "XutaBE"]
 	path = XutaBE
 	url = https://github.com/FilipeBispo/XutaBE.git
+[submodule "Xuta-fe"]
+	path = Xuta-fe
+	url = https://github.com/andreloureiro88/Xuta-fe.git
