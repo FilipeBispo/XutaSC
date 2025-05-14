@@ -77,10 +77,37 @@ describe("xuta-sc", () => {
     .signers([admin])
     .rpcAndKeys();
 
-    
     console.log(tx);
     console.log("Your transaction signature", tx.signature);
     institutionAccount = tx.pubkeys.institution;
+  });
+
+  it("sets new authority!", async () => {
+    // Create a new keypair for the new authority
+    const newAuthority = Keypair.generate();
+    
+    // Request airdrop for the new authority
+    const sig = await connection.requestAirdrop(newAuthority.publicKey, LAMPORTS_PER_SOL * 10);
+    await connection.confirmTransaction(sig);
+
+    // Call set_authority instruction
+    const tx = await program.methods
+      .setAuthority()
+      .accountsPartial({
+        authority: admin.publicKey,
+        newAuthority: newAuthority.publicKey,
+      }).signers([admin])
+      .rpcAndKeys();
+
+    console.log("Set authority transaction signature:", tx);
+
+    // Fetch the updated config account
+    const updatedConfig = await program.account.config.fetch(config);
+
+    // Verify that the authority was changed correctly
+    assert(updatedConfig.authority.equals(newAuthority.publicKey), "Authority was not updated correctly");
+    console.log("New authority set successfully:", newAuthority.publicKey.toString());
+    admin = newAuthority;
   });
 
 });
