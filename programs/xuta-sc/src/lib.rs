@@ -36,8 +36,8 @@ pub mod xuta_sc {
         Ok(())
     }
 
-    pub fn init_institution(ctx: Context<InitInstitution>, name: String, contract: String) -> Result<()> {
-        ctx.accounts.init_institution(name, contract)
+    pub fn init_institution(ctx: Context<InitInstitution>, name: String, contract: String, image: String, description: String) -> Result<()> {
+        ctx.accounts.init_institution(name, contract, image, description)
     }
     
     pub fn init(ctx: Context<Init>) -> Result<()> {
@@ -73,12 +73,13 @@ pub mod xuta_sc {
         name: String,
         contract: String,
         image: String,
+        description: String,
         ratio: u16,
         target_amount: u64,
         initial_date: i64,
         due_date: i64
     ) -> Result<()> {
-        ctx.accounts.create_campaign(name, contract, image, ratio, target_amount, initial_date, due_date, ctx.bumps.campaign)
+        ctx.accounts.create_campaign(name, contract, image, description, ratio, target_amount, initial_date, due_date, ctx.bumps.campaign)
     }
     
 

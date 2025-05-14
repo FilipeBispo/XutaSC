@@ -29,12 +29,15 @@ pub struct InitInstitution<'info> {
 }
 
 impl<'info> InitInstitution<'info> {
-    pub fn init_institution(&mut self, name: String, contract: String) -> Result<()> {
+    pub fn init_institution(&mut self, name: String, contract: String, image: String, description: String) -> Result<()> {
         self.institution.name = name;
         self.institution.authority = self.new_institution_authority.key();
         self.institution.contract = contract;
         self.institution.disabled = false;
         self.institution.has_active_campaigns = false;
+        self.institution.image = image;
+        self.institution.description = description;
+
         Ok(())
     }
 }

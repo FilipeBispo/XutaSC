@@ -13,6 +13,7 @@ impl<'info> CreateCampaign<'info>
         name: String,
         contract: String,
         image: String,
+        description: String,
         ratio: u16,
         target_amount: u64,
         initial_date: i64,
@@ -26,6 +27,7 @@ impl<'info> CreateCampaign<'info>
             Campaign{
                 authority: self.authority.key(),
                 name,
+                description,
                 contract,
                 image,
                 ratio,
