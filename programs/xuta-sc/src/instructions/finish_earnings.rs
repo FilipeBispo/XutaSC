@@ -4,12 +4,9 @@ use anchor_spl::token::{transfer_checked, Mint, Token, TokenAccount, TransferChe
 
 use crate::{state::{Campaign, CampaignStatus, Institution, Earnings}, error::CustomError};
 
-pub fn FinishEarnings(ctx: Context<FinishCampaign>) -> Result<()> {
+pub fn finish_earnings(ctx: Context<FinishEarnings>) -> Result<()> {
     let vault = &ctx.accounts.vault_quote;
     let earnings = &ctx.accounts.earnings;
-
-    // Check vault matches stored vault
-    require!(vault.key() == campaign.vault, CustomError::InvalidVault);
     
     // Check vault matches stored vault
     require!(vault.key() == earnings.vault, CustomError::InvalidVault);
@@ -20,10 +17,9 @@ pub fn FinishEarnings(ctx: Context<FinishCampaign>) -> Result<()> {
         CustomError::EarningsNotActive
     );
 
-    earnings.status = CampaignStatus::Successful;
-
-    // Update institution's active campaigns status
-    institution.has_active_campaigns = false;
+    
+    let mut earnings_data = &mut ctx.accounts.earnings;
+    earnings_data.status = CampaignStatus::Successful;
 
     Ok(())
 }
@@ -45,10 +41,19 @@ pub struct FinishEarnings<'info> {
     )]
     pub user_token_account_quote: Account<'info, TokenAccount>,
 
-        #[account(
+    /// The campaign state PDA, storing conversion ratio and configuration.
+    #[account(
         mut,
-        close = user,
-        seeds = [b"earnings", campaign.key().as_ref()],
+        has_one = mint_quote,
+        seeds = [b"campaign", campaign.mint_player.key().as_ref()],
+        bump = campaign.campaign_bump,
+    )]
+    pub campaign: Account<'info, Campaign>,
+
+    #[account(
+        mut,
+        close = authority,
+        seeds = [b"Earnings", campaign.key().as_ref()],
         bump = earnings.bump,
     )]
     pub earnings: Account<'info, Earnings>,

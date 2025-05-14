@@ -30,10 +30,13 @@ pub mod xuta_sc {
     pub fn finish_campaign(ctx: Context<FinishCampaign>) -> Result<()> {
         instructions::finish_campaign::finish_campaign(ctx)
     }
+
+    pub fn finish_earnings(ctx: Context<FinishEarnings>) -> Result<()> {
+         instructions::finish_earnings::finish_earnings(ctx)
+    }
     
-    pub fn init_earnings(ctx: Context<InitEarnings>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
+    pub fn init_earnings(ctx: Context<InitEarnings>, ratio: u16) -> Result<()> {
+        ctx.accounts.init_earnings(ratio)
     }
 
     pub fn init_institution(ctx: Context<InitInstitution>, name: String, contract: String, image: String, description: String) -> Result<()> {
