@@ -3,7 +3,7 @@ import { Program } from "@coral-xyz/anchor";
 import { XutaSc } from "../target/types/xuta_sc";
 import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { BN } from "bn.js";
-import { createMint, getOrCreateAssociatedTokenAccount, getAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { createMint, getOrCreateAssociatedTokenAccount, getAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID, mintTo } from "@solana/spl-token";
 import {assert, expect} from 'chai';
 import { Campaigns } from "../Xuta-fe/src/containers";
 
@@ -54,7 +54,6 @@ describe("xuta-sc", () => {
     await createMint(connection, admin, admin.publicKey, null, 6, mintQuote);
 
         // user = the Keypair who wants to buy tokens
-
     userQuoteAccount = await getOrCreateAssociatedTokenAccount(
       connection,
       user, // payer for account creation
@@ -65,6 +64,8 @@ describe("xuta-sc", () => {
       undefined,
       TOKEN_PROGRAM_ID
     );
+
+    await mintTo(connection, admin, mintQuote.publicKey, userQuoteAccount.address, admin, 100000 );
   });
 
 
@@ -162,8 +163,7 @@ describe("xuta-sc", () => {
 
   it("buying tokens!", async () => {
 
-
-
+    console.log(userQuoteAccount);
     const tx = await program.methods
     .buyToken( 
       new BN(100), 
@@ -174,7 +174,7 @@ describe("xuta-sc", () => {
       mintQuote: mintQuote.publicKey,
       config: config,
       campaign: campaignAccount,
-      userQuoteAta: userQuoteAccount.publicKey,
+      userQuoteAta: userQuoteAccount.address,
 
     })
     .signers([user])
