@@ -66,7 +66,7 @@ pub struct InitEarnings<'info> {
         has_one = mint_player,
         has_one = mint_quote,
         seeds = [b"campaign", mint_player.key().as_ref()],
-        bump
+        bump 
     )]    
     pub campaign: Account<'info, Campaign>,
 

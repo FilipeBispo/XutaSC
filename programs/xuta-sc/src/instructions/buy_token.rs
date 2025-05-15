@@ -115,8 +115,8 @@ pub struct BuyToken<'info> {
 
     #[account(
         mut,
-        associated_token::mint = mint_quote,
-        associated_token::authority = campaign,
+        seeds = [b"vault", campaign.key().as_ref()],
+        bump
     )]
     pub vault_quote: Account<'info, TokenAccount>,
 

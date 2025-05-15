@@ -3,8 +3,9 @@ import { Program } from "@coral-xyz/anchor";
 import { XutaSc } from "../target/types/xuta_sc";
 import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { BN } from "bn.js";
-import { getAccount, getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { createMint, getOrCreateAssociatedTokenAccount, getAccount, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {assert, expect} from 'chai';
+import { Campaigns } from "../Xuta-fe/src/containers";
 
 describe("xuta-sc", () => {
   // Configure the client to use the local cluster.
@@ -15,19 +16,25 @@ describe("xuta-sc", () => {
   let admin: Keypair;
   let institutionAdmin: Keypair;
   let user: Keypair;
+  let mintQuote: Keypair;
+  let mintPlayer: Keypair;
   let config: PublicKey;
   let institutionAccount: PublicKey;
-  let userAccount: PublicKey;
-  let mintPlayer: PublicKey;
-  let mintQuote: PublicKey;
-  let institutionQuoteAccount: PublicKey;
-  let userQuoteAccount: PublicKey;
+  let campaignAccount: PublicKey;
+  //let mintPlayer: PublicKey;
+  //let mintQuote: PublicKey;
+  let userQuoteAccount;
+  let receipt: PublicKey;
   let connection: Connection;
 
   before('', async () => {
     admin = Keypair.generate();
     user = Keypair.generate();
     institutionAdmin = Keypair.generate();
+    user = Keypair.generate();
+    institutionAdmin = Keypair.generate();
+    mintPlayer = Keypair.generate();
+    mintQuote = Keypair.generate();
 
     console.log("Admin pk= ", admin.publicKey);
     connection = anchor.getProvider().connection;
@@ -43,6 +50,21 @@ describe("xuta-sc", () => {
       connection.confirmTransaction(sigs[1]),
       connection.confirmTransaction(sigs[2])
     ]);
+    
+    await createMint(connection, admin, admin.publicKey, null, 6, mintQuote);
+
+        // user = the Keypair who wants to buy tokens
+
+    userQuoteAccount = await getOrCreateAssociatedTokenAccount(
+      connection,
+      user, // payer for account creation
+      mintQuote.publicKey, // the mint for the quote token
+      user.publicKey, // the owner of the ATA
+      false, // allowOwnerOffCurve: false since user is a regular keypair
+      undefined,
+      undefined,
+      TOKEN_PROGRAM_ID
+    );
   });
 
 
@@ -68,7 +90,7 @@ describe("xuta-sc", () => {
   it("inititialize institution!", async () => {
 
     const tx = await program.methods
-    .initInstitution("Soccer Stars","URL_PDF")
+    .initInstitution("Soccer Stars","URL_PDF","URL_IMAGE","Soccer star is the best")
     .accountsPartial({
       institutionAuthority: admin.publicKey,
       newInstitutionAuthority: institutionAdmin.publicKey,
@@ -108,6 +130,59 @@ describe("xuta-sc", () => {
     assert(updatedConfig.authority.equals(newAuthority.publicKey), "Authority was not updated correctly");
     console.log("New authority set successfully:", newAuthority.publicKey.toString());
     admin = newAuthority;
+  });
+
+    it("creates a campaign!", async () => {
+
+    const tx = await program.methods
+    .createCampaign( "Ronaldo", 
+                    "URL_contract", 
+                    "URL_Image", 
+                    "Invest in Ronaldo", 
+                    10, 
+                    new BN(1000), 
+                    new BN(1747250749), 
+                    new BN(1767250740)
+                  )
+    .accountsPartial({
+
+      mintPlayer: mintPlayer.publicKey,
+      mintQuote: mintQuote.publicKey,
+      authority: institutionAdmin.publicKey,
+      config: config,
+      institution: institutionAccount,
+    })
+    .signers([institutionAdmin,mintPlayer])
+    .rpcAndKeys();
+
+    console.log(tx);
+    console.log("Your transaction signature", tx.signature);
+    campaignAccount = tx.pubkeys.campaign;
+  });
+
+  it("buying tokens!", async () => {
+
+
+
+    const tx = await program.methods
+    .buyToken( 
+      new BN(100), 
+      1
+    )
+    .accountsPartial({
+      user: user.publicKey,
+      mintQuote: mintQuote.publicKey,
+      config: config,
+      campaign: campaignAccount,
+      userQuoteAta: userQuoteAccount.publicKey,
+
+    })
+    .signers([user])
+    .rpcAndKeys();
+
+    console.log(tx);
+    console.log("Your transaction signature", tx.signature);
+    receipt = tx.pubkeys.receipt;
   });
 
 });

@@ -68,18 +68,8 @@ pub struct CreateCampaign<'info>{
     pub mint_quote: Account<'info, Mint>,
     
     #[account(
-        mut,
-        associated_token::mint = mint_quote,
-        associated_token::authority = authority,
-        associated_token::token_program = token_program
-    )]
-    pub owner_token_account: Account<'info, TokenAccount>,
-
-    #[account(
         init,
         payer = authority,
-        has_one = mint_player,
-        has_one = mint_quote,
         space = Campaign::DISCRIMINATOR.len() + Campaign::INIT_SPACE,
         seeds = [b"campaign", mint_player.key().as_ref()],
         bump
@@ -100,13 +90,14 @@ pub struct CreateCampaign<'info>{
     #[account(
         init,
         payer = authority,
-        associated_token::mint = mint_quote,
-        associated_token::authority = campaign,
-        associated_token::token_program = token_program
+        token::mint = mint_quote,
+        token::authority = campaign,
+        token::token_program = token_program,
+        seeds = [b"vault", campaign.key().as_ref()],
+        bump
     )]
     pub vault: Account<'info, TokenAccount>,
 
     pub token_program: Program<'info, Token>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
