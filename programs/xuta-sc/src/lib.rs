@@ -9,7 +9,7 @@ use crate::instructions::*;
 //use crate::state::*;
 //pub use states::*;
 
-declare_id!("9K9BEAMrDqauP8bDEHb19wuFZv5kCn8XjgeixWE7sf6K");
+declare_id!("XUTAAsrE6AGc3xzvKtz6VNab6QuwVx41MD7HB7K5zVa");
 
 #[program]
 pub mod xuta_sc {

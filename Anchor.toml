@@ -7,7 +7,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-xuta_sc = "9K9BEAMrDqauP8bDEHb19wuFZv5kCn8XjgeixWE7sf6K"
+xuta_sc = "XUTAAsrE6AGc3xzvKtz6VNab6QuwVx41MD7HB7K5zVa"
 
 [registry]
 url = "https://api.apr.dev"
