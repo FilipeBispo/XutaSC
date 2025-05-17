@@ -1,5 +1,12 @@
 xuta.project{**AT**}gmail.com
 
+Xuta is a Web3 dApp built to tokenize real-world athlete equity using smart contracts and burn-based financial mechanics.
+We partner with licensed football agents to issue Player ICOs, where users purchase on-chain tokens representing a share of a player’s future transfer value. Tokens are burned to claim earnings, and tradable on secondary markets.
+
+The platform is built on Solana using smart contracts for agent-player agreements, token issuance, and payout mechanics. Compliance with FIFA's third-party ownership ban is maintained through legal structuring and smart contract enforcement.
+
+Xuta bridges real-world assets and DeFi with a focus on scalability, security, and fan engagement.
+
 🚀 Getting Started
 Follow the steps below to set up, build, and deploy the XutaSC smart contracts using the Anchor framework on Solana.
 
