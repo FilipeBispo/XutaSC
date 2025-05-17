@@ -7,8 +7,11 @@ The platform is built on Solana using smart contracts for agent-player agreement
 
 Xuta bridges real-world assets and DeFi with a focus on scalability, security, and fan engagement.
 
-(Instalation for BE and FE are each in their own repos)
+
 🚀 Getting Started
+
+(Instalation for BE and FE are each in their own repos)
+
 Follow the steps below to set up, build, and deploy the XutaSC smart contracts using the Anchor framework on Solana.
 
 ✅ Prerequisites
