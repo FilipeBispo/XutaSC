@@ -61,8 +61,13 @@ anchor deploy
 📁 Project Structure
 .
  programs/       # Anchor smart contracts (Rust)
+
  migrations/     # Deployment scripts
+ 
  tests/          # Integration tests
+ 
  Anchor.toml     # Anchor configuration
+ 
  Cargo.toml      # Rust project config
+ 
  README.md       # Project documentation
