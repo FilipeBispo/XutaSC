@@ -7,8 +7,11 @@ Follow the steps below to set up, build, and deploy the XutaSC smart contracts u
 Make sure you have the following installed:
 
 Rust
+
 Node.js and Yarn
+
 Solana CLI
+
 Anchor
 
 # Install Rust
