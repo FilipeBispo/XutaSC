@@ -7,6 +7,7 @@ The platform is built on Solana using smart contracts for agent-player agreement
 
 Xuta bridges real-world assets and DeFi with a focus on scalability, security, and fan engagement.
 
+--
 
 🚀 Getting Started
 
