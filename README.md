@@ -70,7 +70,7 @@ This will automatically spin up a local validator and test the smart contracts.
 
 📤 Deploy the Program
 
-To Localnet:
+To Localnet: (which is what we are doing right now)
 
 # Start a local Solana cluster
 
@@ -78,15 +78,7 @@ solana-test-validator
 
 In another terminal:
 
-solana config set --url localhost
-
-anchor deploy
-
-To Devnet:
-
-solana config set --url https://api.devnet.solana.com
-
-anchor deploy
+anchor deploy --provider.cluster localnet --program-keypair ../XUTAAsrE6AGc3xzvKtz6VNab6QuwVx41MD7HB7K5zVa.json --program-name xuta_sc
 
 ##
 
@@ -96,8 +88,3 @@ anchor deploy
  
  tests/          # Integration tests
  
- Anchor.toml     # Anchor configuration
- 
- Cargo.toml      # Rust project config
- 
- README.md       # Project documentation
