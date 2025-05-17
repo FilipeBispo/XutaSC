@@ -61,7 +61,7 @@ anchor deploy
 ##
 
 📁 Project Structure
-.
+
  programs/       # Anchor smart contracts (Rust)
 
  migrations/     # Deployment scripts
