@@ -73,9 +73,8 @@ pub struct FinishCampaign<'info> {
 
     #[account(
         mut,
-        associated_token::mint = mint_quote,
-        associated_token::authority = campaign,
-        associated_token::token_program = token_program,
+        seeds = [b"vault", campaign.key().as_ref()],
+        bump,
     )]
     pub vault: Box<Account<'info, TokenAccount>>,
 
@@ -90,8 +89,6 @@ pub struct FinishCampaign<'info> {
 
     #[account(
         mut,
-        seeds = [b"institution".as_ref(), institution.name.as_ref()],
-        bump = institution.bump,
     )]
     pub institution: Account<'info, Institution>,
 

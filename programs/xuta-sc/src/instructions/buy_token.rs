@@ -6,7 +6,7 @@ use anchor_spl::token::{
 use crate::{state::{Campaign, CampaignStatus, Config, Receipt}, error::CustomError};
 
 impl<'info> BuyToken<'info> {
-    pub fn buy_token(ctx: Context<BuyToken>, amount: u64, receipt_bump: u8) -> Result<()> {
+    pub fn buy_token(ctx: Context<BuyToken>, amount: u64) -> Result<()> {
         let campaign = &ctx.accounts.campaign;
         let config = &ctx.accounts.config;
         let vault = &ctx.accounts.vault_quote;
@@ -35,7 +35,6 @@ impl<'info> BuyToken<'info> {
 
         let mut total_amount  = amount; 
 
-        let mut refund= false;
         // Calculate tokens to mint based on ratio
         let mut token_number = total_amount
             .checked_div(campaign.ratio as u64)
@@ -45,7 +44,6 @@ impl<'info> BuyToken<'info> {
             token_number = campaign.target_amount - campaign.current_tokens;
             total_amount = token_number.checked_mul(campaign.ratio as u64)
             .ok_or(CustomError::InvalidRatioOrAmount)?;
-            refund = true;
         }
 
         let fee_amount = token_number
@@ -85,8 +83,12 @@ impl<'info> BuyToken<'info> {
         receipt.authority =  user.key();
         receipt.token_amount = receipt.token_amount + token_amount;
         receipt.fee_amount = receipt.fee_amount + fee_amount;
-        receipt.bump = receipt_bump;
+        receipt.bump = ctx.bumps.receipt;
 
+        msg!("amount: {:?}", amount);
+        msg!("token_amount: {:?}", token_amount);
+        msg!("fee_amount: {:?}", fee_amount);
+        msg!("token_number: {:?}", token_number);
         // implementation to be made
         Ok(())
     }

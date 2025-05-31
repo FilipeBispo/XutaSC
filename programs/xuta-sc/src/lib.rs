@@ -15,8 +15,8 @@ declare_id!("XUTAAsrE6AGc3xzvKtz6VNab6QuwVx41MD7HB7K5zVa");
 pub mod xuta_sc {
     use super::*;
     
-    pub fn buy_token(ctx: Context<BuyToken>, amount: u64, receipt_bump: u8) -> Result<()> {
-        BuyToken::buy_token(ctx, amount, receipt_bump)
+    pub fn buy_token(ctx: Context<BuyToken>, amount: u64) -> Result<()> {
+        BuyToken::buy_token(ctx, amount)
     }
     
     pub fn claim_earnings(ctx: Context<ClaimEarnings>, amount: u64) -> Result<()> {

@@ -20,6 +20,7 @@ describe("xuta-sc", () => {
   let mintPlayer: Keypair;
   let config: PublicKey;
   let institutionAccount: PublicKey;
+  let institutionQuoteAta: PublicKey;
   let campaignAccount: PublicKey;
   //let mintPlayer: PublicKey;
   //let mintQuote: PublicKey;
@@ -33,7 +34,6 @@ describe("xuta-sc", () => {
     user = Keypair.generate();
     institutionAdmin = Keypair.generate();
     user = Keypair.generate();
-    institutionAdmin = Keypair.generate();
     mintPlayer = Keypair.generate();
     mintQuote = Keypair.generate();
 
@@ -69,6 +69,18 @@ describe("xuta-sc", () => {
       undefined,
       TOKEN_PROGRAM_ID
     );
+
+    // user = the Keypair who wants to buy tokens
+    institutionQuoteAta = (await getOrCreateAssociatedTokenAccount(
+      connection,
+      institutionAdmin, // payer for account creation
+      mintQuote.publicKey, // the mint for the quote token
+      institutionAdmin.publicKey, // the owner of the ATA
+      false, // allowOwnerOffCurve: false since user is a regular keypair
+      undefined,
+      undefined,
+      TOKEN_PROGRAM_ID
+    )).address;
 
     await mintTo(connection, admin, mintQuote.publicKey, userQuoteAccount.address, admin, 100000);
 
@@ -168,18 +180,9 @@ describe("xuta-sc", () => {
 
   it("buying tokens!", async () => {
 
-    userPlayerTokenAccount = await getOrCreateAssociatedTokenAccount(
-      connection,
-      user,                    // payer (also ATA owner here)
-      mintPlayer.publicKey,    // the new token mint
-      user.publicKey           // ATA owner
-    );
-    
-    console.log(userQuoteAccount);
     const tx = await program.methods
       .buyToken(
-        new BN(100),
-        1
+        new BN(1000)
       )
       .accountsPartial({
         user: user.publicKey,
@@ -195,10 +198,50 @@ describe("xuta-sc", () => {
     console.log(tx);
     console.log("Your transaction signature", tx.signature);
     receipt = tx.pubkeys.receipt;
+
+    await connection.confirmTransaction(tx.signature);
+
+    const accountTest = await program.account.campaign.fetch(campaignAccount);
+    console.log(accountTest);
+  });
+
+    it("finish campaign!", async () => {
+
+    console.log(userQuoteAccount);
+    const tx = await program.methods
+      .finishCampaign(
+      )
+      .accountsPartial({
+        mintQuote: mintQuote.publicKey,
+        campaign: campaignAccount,
+        userTokenAccountQuote: institutionQuoteAta,
+        authority: institutionAdmin.publicKey,
+        institution: institutionAccount,
+
+
+      })
+      .signers([institutionAdmin])
+      .rpcAndKeys();
+
+    console.log(tx);
+    console.log("Your transaction signature", tx.signature);
+
+    await connection.confirmTransaction(tx.signature);
+
+    const accountTest = await program.account.campaign.fetch(campaignAccount);
+    console.log(accountTest);
   });
 
   it("redeem tokens!", async () => {
 
+    userPlayerTokenAccount = await getOrCreateAssociatedTokenAccount(
+      connection,
+      user,                    // payer (also ATA owner here)
+      mintPlayer.publicKey,    // the new token mint
+      user.publicKey           // ATA owner
+    );
+    
+    console.log(userQuoteAccount);
     console.log("User's ATA for mintPlayer:", userPlayerTokenAccount.address);
     const tx = await program.methods
       .redeemToken(
