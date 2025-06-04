@@ -18,16 +18,21 @@ describe("xuta-sc", () => {
   let user: Keypair;
   let mintQuote: Keypair;
   let mintPlayer: Keypair;
+  let mintPlayer2: Keypair;
   let config: PublicKey;
   let institutionAccount: PublicKey;
   let institutionQuoteAta: PublicKey;
   let campaignAccount: PublicKey;
+  let campaignAccount2: PublicKey;
   //let mintPlayer: PublicKey;
   //let mintQuote: PublicKey;
   let userQuoteAccount;
   let userPlayerTokenAccount;
   let receipt: PublicKey;
+  let receipt2: PublicKey;
   let connection: Connection;
+
+  let initialBalance;
 
   before('', async () => {
     admin = Keypair.generate();
@@ -36,7 +41,7 @@ describe("xuta-sc", () => {
     user = Keypair.generate();
     mintPlayer = Keypair.generate();
     mintQuote = Keypair.generate();
-
+    mintPlayer2 = Keypair.generate();
     console.log("Admin pk= ", admin.publicKey);
     connection = anchor.getProvider().connection;
 
@@ -97,12 +102,9 @@ describe("xuta-sc", () => {
 
     let cfgPk = tx.pubkeys.config;
     const cfg = await program.account.config.fetch(cfgPk);
-    console.log("cfg: ", cfg);
 
     assert(cfg.authority.equals(admin.publicKey));
     assert(cfg.institutionAuthority.equals(admin.publicKey));
-    console.log("Your transaction signature", tx.signature);
-    console.log(tx);
     config = tx.pubkeys.config;
   });
 
@@ -117,9 +119,6 @@ describe("xuta-sc", () => {
       })
       .signers([admin])
       .rpcAndKeys();
-
-    console.log(tx);
-    console.log("Your transaction signature", tx.signature);
     institutionAccount = tx.pubkeys.institution;
   });
 
@@ -140,14 +139,12 @@ describe("xuta-sc", () => {
       }).signers([admin])
       .rpcAndKeys();
 
-    console.log("Set authority transaction signature:", tx);
 
     // Fetch the updated config account
     const updatedConfig = await program.account.config.fetch(config);
 
     // Verify that the authority was changed correctly
     assert(updatedConfig.authority.equals(newAuthority.publicKey), "Authority was not updated correctly");
-    console.log("New authority set successfully:", newAuthority.publicKey.toString());
     admin = newAuthority;
   });
 
@@ -173,8 +170,6 @@ describe("xuta-sc", () => {
       .signers([institutionAdmin, mintPlayer])
       .rpcAndKeys();
 
-    console.log(tx);
-    console.log("Your transaction signature", tx.signature);
     campaignAccount = tx.pubkeys.campaign;
   });
 
@@ -195,41 +190,34 @@ describe("xuta-sc", () => {
       .signers([user])
       .rpcAndKeys();
 
-    console.log(tx);
-    console.log("Your transaction signature", tx.signature);
     receipt = tx.pubkeys.receipt;
 
     await connection.confirmTransaction(tx.signature);
 
     const accountTest = await program.account.campaign.fetch(campaignAccount);
-    console.log(accountTest);
+    assert(accountTest.currentTokens.toString() === "1000");
+    assert(accountTest.currentTokens.toString() === accountTest.targetAmount.toString());
   });
 
-    it("finish campaign!", async () => {
+  it("finish campaign!", async () => {
 
-    console.log(userQuoteAccount);
     const tx = await program.methods
       .finishCampaign(
-      )
+    )
       .accountsPartial({
         mintQuote: mintQuote.publicKey,
         campaign: campaignAccount,
         userTokenAccountQuote: institutionQuoteAta,
         authority: institutionAdmin.publicKey,
         institution: institutionAccount,
-
-
       })
       .signers([institutionAdmin])
       .rpcAndKeys();
 
-    console.log(tx);
-    console.log("Your transaction signature", tx.signature);
-
     await connection.confirmTransaction(tx.signature);
 
     const accountTest = await program.account.campaign.fetch(campaignAccount);
-    console.log(accountTest);
+    assert(accountTest.status.successful);
   });
 
   it("redeem tokens!", async () => {
@@ -240,12 +228,10 @@ describe("xuta-sc", () => {
       mintPlayer.publicKey,    // the new token mint
       user.publicKey           // ATA owner
     );
-    
-    console.log(userQuoteAccount);
-    console.log("User's ATA for mintPlayer:", userPlayerTokenAccount.address);
+
     const tx = await program.methods
       .redeemToken(
-      )
+    )
       .accountsPartial({
         user: user.publicKey,
         mintPlayer: mintPlayer.publicKey,
@@ -257,9 +243,98 @@ describe("xuta-sc", () => {
       .rpcAndKeys();
 
     const tokenAccountInfo = await getAccount(connection, userPlayerTokenAccount.address);
-    console.log("Balance:", tokenAccountInfo.amount.toString());
+  });
 
-    console.log(tx);
-    console.log("Your transaction signature", tx.signature);
+
+  //// START REDEEM WORKFLOW TESTS ////
+
+
+  it("creates a campaign!", async () => {
+
+    const tx = await program.methods
+      .createCampaign("ze",
+        "URL_contract",
+        "URL_Image",
+        "Invest in ze",
+        10,
+        new BN(1000),
+        new BN(1747250749),
+        new BN(1767250740)
+      )
+      .accountsPartial({
+        mintPlayer: mintPlayer2.publicKey,
+        mintQuote: mintQuote.publicKey,
+        authority: institutionAdmin.publicKey,
+        config: config,
+        institution: institutionAccount,
+      })
+      .signers([institutionAdmin, mintPlayer2])
+      .rpcAndKeys();
+
+    campaignAccount2 = tx.pubkeys.campaign;
+  });
+
+  it("buying tokens!", async () => {
+    initialBalance = (await getAccount(connection, userQuoteAccount.address)).amount;
+
+    const tx = await program.methods
+      .buyToken(
+        new BN(100)
+      )
+      .accountsPartial({
+        user: user.publicKey,
+        mintQuote: mintQuote.publicKey,
+        config: config,
+        campaign: campaignAccount2,
+        userQuoteAta: userQuoteAccount.address,
+
+      })
+      .signers([user])
+      .rpcAndKeys();
+
+    receipt2 = tx.pubkeys.receipt;
+
+    await connection.confirmTransaction(tx.signature);
+  });
+
+  it("finish campaign!", async () => {
+
+    const tx = await program.methods
+      .finishCampaign(
+    )
+      .accountsPartial({
+        mintQuote: mintQuote.publicKey,
+        campaign: campaignAccount2,
+        userTokenAccountQuote: institutionQuoteAta,
+        authority: institutionAdmin.publicKey,
+        institution: institutionAccount,
+      })
+      .signers([institutionAdmin])
+      .rpcAndKeys();
+
+    await connection.confirmTransaction(tx.signature);
+
+    const accountTest = await program.account.campaign.fetch(campaignAccount2);
+    assert(accountTest.status.failed);
+  });
+
+  it("refund receipt!", async () => {
+
+    const tx = await program.methods
+      .refundReceipt()
+      .accountsPartial({
+        receipt: receipt2,
+        user: user.publicKey,
+        mintQuote: mintQuote.publicKey,
+        campaign: campaignAccount2,
+        userTokenAccountQuote: userQuoteAccount.address,
+      })
+      .signers([user])
+      .rpcAndKeys();
+
+    await connection.confirmTransaction(tx.signature);
+
+    let finalBalance = (await getAccount(connection, userQuoteAccount.address)).amount;
+    assert(finalBalance.toString() === initialBalance.toString());
   });
 });
