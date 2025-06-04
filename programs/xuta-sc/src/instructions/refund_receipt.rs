@@ -97,9 +97,8 @@ pub struct RefundReceipt<'info> {
 
     #[account(
         mut,
-        associated_token::mint = mint_quote,
-        associated_token::authority = campaign,
-        associated_token::token_program = token_program,
+        seeds = [b"vault", campaign.key().as_ref()],
+        bump
     )]
     pub vault: Box<Account<'info, TokenAccount>>,
 
