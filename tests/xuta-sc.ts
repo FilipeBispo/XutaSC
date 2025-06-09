@@ -337,4 +337,50 @@ describe("xuta-sc", () => {
     let finalBalance = (await getAccount(connection, userQuoteAccount.address)).amount;
     assert(finalBalance.toString() === initialBalance.toString());
   });
+
+  it("set fee", async () => {
+    const tx = await program.methods
+      .setFee(
+        1000,
+        2000
+      )
+      .accountsPartial({
+        authority: admin.publicKey,
+        config: config,
+      })
+      .signers([admin])
+      .rpc();
+
+    const updatedConfig = await program.account.config.fetch(config);
+    assert(updatedConfig.feePre.toString() === "1000");
+    assert(updatedConfig.feePos.toString() === "2000");
+  });
+
+  it("fails to set invalid fee values", async () => {
+
+    // max values are 10000, values above should throw an error
+    let pass = false;
+
+    try {
+      const tx = await program.methods
+        .setFee(
+          10001,
+          20001
+        )
+      .accountsPartial({
+        authority: admin.publicKey,
+        config: config,
+      })
+      .signers([admin])
+        .rpc();
+    } catch (error) {
+      pass = true;
+    }
+
+    assert(pass, "Error should have been thrown");
+
+    const updatedConfig = await program.account.config.fetch(config);
+    assert(updatedConfig.feePre.toString() === "1000");
+    assert(updatedConfig.feePos.toString() === "2000");
+  });
 });
